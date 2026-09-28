@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400mm" height="550mm" viewBox="0 0 400 550">
+<rect width="400" height="550" fill="#ffffff"/>
+<g id="GUIDE_non_stampare" fill="none" stroke="#e05a5a" stroke-width="0.4" stroke-dasharray="3 2">
+<rect x="30" y="30" width="340" height="490"/>
+<circle cx="18" cy="18" r="6"/>
+<circle cx="382" cy="18" r="6"/>
+<circle cx="18" cy="532" r="6"/>
+<circle cx="382" cy="532" r="6"/>
+</g>
+<g id="LOGO_SHOPNOW">
+<rect x="50" y="95" width="300" height="120" rx="4" fill="#f3f6fa" stroke="#9fb3c8" stroke-width="0.6" stroke-dasharray="4 3"/>
+<text x="200" y="172" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#1f5fa8">ShopNow</text>
+<text x="200" y="205" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6" fill="#7a8ea3">[ segnaposto — inserire logo_shopnow originale in vettoriale, a colori ]</text>
+</g>
+<text id="PAYOFF" x="200" y="262" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#333333">Leader nella vendita online di prodotti su misura</text>
+<line x1="150" y1="295" x2="250" y2="295" stroke="#333333" stroke-width="0.6"/>
+<g id="CANALI">
+<text x="72.5" y="336.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">leTapparelle.com</text>
+<text x="157.5" y="336.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">DocciaBox.com</text>
+<text x="242.5" y="336.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">Zanzariere24.it</text>
+<text x="327.5" y="336.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">BricoBros.com</text>
+<text x="72.5" y="370.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">LineaDoccia.it</text>
+<text x="157.5" y="370.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">Veneziane.it</text>
+<text x="242.5" y="370.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">TendeCristal.it</text>
+<text x="327.5" y="370.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">Doccia.it</text>
+<text x="72.5" y="404.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">Tapparelle.it</text>
+<text x="157.5" y="404.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">InfissiFaiDaTe.it</text>
+<text x="242.5" y="404.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">SolidStone.it</text>
+<text x="327.5" y="404.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#333333">BuyMore.it</text>
+<rect x="36.5" y="424.0" width="72" height="24" fill="none" stroke="#bbbbbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text x="72.5" y="437.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="4.5" fill="#aaaaaa">sito da indicare</text>
+<rect x="121.5" y="424.0" width="72" height="24" fill="none" stroke="#bbbbbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text x="157.5" y="437.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="4.5" fill="#aaaaaa">sito da indicare</text>
+<rect x="206.5" y="424.0" width="72" height="24" fill="none" stroke="#bbbbbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text x="242.5" y="437.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="4.5" fill="#aaaaaa">sito da indicare</text>
+<rect x="291.5" y="424.0" width="72" height="24" fill="none" stroke="#bbbbbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text x="327.5" y="437.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="4.5" fill="#aaaaaa">sito da indicare</text>
+</g>
+<text id="DOMINIO" x="200" y="505" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="0.5" fill="#333333">www.shopnow.it</text>
+</svg>
