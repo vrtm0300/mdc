@@ -4,7 +4,7 @@ INK = "#333333"   # colore unico per canali e testi (monocromia)
 siti = ["leTapparelle.com", "DocciaBox.com", "Zanzariere24.it", "BricoBros.com",
         "LineaDoccia.it", "Veneziane.it", "TendeCristal.it", "Doccia.it",
         "Tapparelle.it", "InfissiFaiDaTe.it", "SolidStone.it", "BuyMore.it",
-        None, None, None, None]  # slot da completare
+        "CleanTechnology.it", "Amaro del Posto", None, None]  # slot da completare
 
 cols, rows = 4, 4
 gx0, gy0, cw, rh = M, 322, (W - 2 * M) / cols, 34
