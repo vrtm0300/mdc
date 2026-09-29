@@ -26,13 +26,11 @@ W, H, M = 400, 550, 30
 INK = "#333333"   # colore unico per canali e testi (monocromia)
 
 # Canali di vendita, in ordine di griglia (id = file in loghi/mono/)
-# 1a fila per importanza; 2a-4a mix & match: nomi in assonanza (tapparelle, doccia, 24)
-# e loghi gemelli (tapparelle.it / veneziane.it / tendecristal.it) mai vicini, neanche in
-# diagonale, e loghi "pesanti" distanziati; 5a fila: siti esteri.
+# 1a fila per importanza; 2a-4a ordine scelto dal cliente; 5a fila: siti esteri.
 siti = ["letapparelle", "docciabox", "bricobros", "finestro",
-        "cleantechnology", "zanzariere", "tapparelle", "doccia",
-        "veneziane", "infissifaidate", "solidstone", "buymore",
-        "zeta24", "lineadoccia", "rollmatik", "tendecristal",
+        "cleantechnology", "lineadoccia", "solidstone", "doccia",
+        "rollmatik", "tapparelle", "infissifaidate", "buymore",
+        "tendecristal", "zeta24", "veneziane", "zanzariere",
         "kabinedusch", "youblind", "mamparaducha", "mosquiteras24"]
 # fuori griglia: startactive, amarodelposto (non su misura), monacidigitali (non e' un sito di vendita)
 
