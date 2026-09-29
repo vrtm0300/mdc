@@ -18,6 +18,8 @@ OUT = os.path.join(QUI, "loghi", "mono")
 
 # mode "colore": inchiostro = distanza dal bianco (255 - min(R,G,B)), per loghi su sfondo chiaro
 # mode "alpha" : inchiostro = trasparenza, per loghi disegnati per sfondo scuro (testo bianco)
+# mode "chiari": inchiostro = pixel chiari o colorati, esclusi i grigi scuri (loghi "adesivo"
+#                con contorno scuro: restano le lettere, il contorno sparisce)
 # soglia: distanza dal bianco oltre cui un pixel e' inchiostro (piu' alta = tratti piu' sottili)
 # taglio: (x0, y0, x1, y1) in frazioni dell'immagine, per escludere riflessi/decorazioni
 LOGHI = {
@@ -29,6 +31,7 @@ LOGHI = {
     "tendecristal":    dict(src="tendecristal.png"),
     "zanzariere":      dict(src="zanzariere.jpg", soglia=125),
     "infissifaidate":  dict(src="infissifaidate.png"),
+    "bricobros":       dict(src="bricobros.png", mode="chiari", soglia=100),
     "finestro":        dict(src="finestro.jpg", soglia=90),
     "lineadoccia":     dict(src="lineadoccia.png"),
     "zeta24":          dict(src="zeta24.jpg", soglia=90),
@@ -38,6 +41,7 @@ LOGHI = {
     "kabinedusch":     dict(src="kabinedusch.png"),
     "mamparaducha":    dict(src="mamparaducha.png", soglia=60),
     "youblind":        dict(src="youblind.png", soglia=50),
+    "mosquiteras24":   dict(src="mosquiteras24.png"),
     "buymore":         dict(src="buymore.png"),
     "startactive":     dict(src="startactive.png", mode="alpha"),
     "amarodelposto":   dict(src="amarodelposto.png", mode="alpha"),
@@ -54,6 +58,8 @@ def maschera(cfg):
     rgb, alpha = a[..., :3], a[..., 3:] / 255.0
     if cfg.get("mode") == "alpha":
         ink = alpha[..., 0]
+    elif cfg.get("mode") == "chiari":
+        ink = alpha[..., 0] * np.clip((rgb.max(axis=2) - cfg.get("soglia", 100)) / 80.0 + 0.5, 0, 1)
     else:
         su_bianco = rgb * alpha + 255.0 * (1 - alpha)
         dist = 255.0 - su_bianco.min(axis=2)

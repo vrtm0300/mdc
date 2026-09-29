@@ -2,7 +2,7 @@
 #
 # Produce:
 #   bozza_pannello_40x55.svg   con lo strato GUIDE (margini, fori) per la revisione
-#   pannello_40x55_stampa.svg  per lo stampatore: niente GUIDE, niente sfondo, testi in curve
+#   pannello_40x55_stampa.svg  per lo stampatore: niente GUIDE, fori o sfondo, testi in curve
 #   anteprima.png              render del pannello finito (senza guide)
 #
 # Richiede: loghi/shopnow_logo.svg, loghi/mono/*.svg (da prepara_loghi.py),
@@ -26,12 +26,15 @@ W, H, M = 400, 550, 30
 INK = "#333333"   # colore unico per canali e testi (monocromia)
 
 # Canali di vendita, in ordine di griglia (id = file in loghi/mono/)
-siti = ["letapparelle", "tapparelle", "doccia", "docciabox",
-        "veneziane", "tendecristal", "zanzariere", "infissifaidate",
-        "finestro", "lineadoccia", "zeta24", "rollmatik",
-        "solidstone", "cleantechnology", "kabinedusch", "mamparaducha",
-        "youblind", "buymore", "startactive", "amarodelposto"]
-# fuori griglia per spazio: "monacidigitali" (progetto filantropico, non e' un sito di vendita)
+# 1a fila per importanza; 2a-4a mix & match: nomi in assonanza (tapparelle, doccia, 24)
+# e loghi gemelli (tapparelle.it / veneziane.it / tendecristal.it) mai vicini, neanche in
+# diagonale, e loghi "pesanti" distanziati; 5a fila: siti esteri.
+siti = ["letapparelle", "docciabox", "bricobros", "finestro",
+        "cleantechnology", "zanzariere", "tapparelle", "doccia",
+        "veneziane", "infissifaidate", "solidstone", "buymore",
+        "zeta24", "lineadoccia", "rollmatik", "tendecristal",
+        "kabinedusch", "youblind", "mamparaducha", "mosquiteras24"]
+# fuori griglia: startactive, amarodelposto (non su misura), monacidigitali (non e' un sito di vendita)
 
 cols, rows = 4, 5
 GY0, GY1 = 222, 452           # fascia verticale della griglia
@@ -43,7 +46,8 @@ RH = (GY1 - GY0) / rows       # passo righe
 AREA, H_MAX, W_MAX = 20 * 70, 22, 72
 OTTICA = {                    # correzioni a occhio (moltiplicano l'altezza)
     "rollmatik": 0.9, "finestro": 0.9, "zeta24": 0.88, "buymore": 0.88, "cleantechnology": 0.9,
-    "mamparaducha": 1.08, "startactive": 1.1, "amarodelposto": 1.05,
+    "mamparaducha": 1.08, "startactive": 1.1, "amarodelposto": 1.05, "bricobros": 0.95,
+    "mosquiteras24": 1.06,
 }
 W_OTTICA = 76                 # tetto di larghezza per i loghi ingranditi a occhio
 
@@ -139,7 +143,7 @@ def dimensione(w, h, nome):
 
 
 # ---------------------------------------------------------------- composizione
-def componi(guide=True, sfondo=True):
+def componi(guide=True, sfondo=True, fori=True):
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">']
     if sfondo:
         out.append(f'<rect id="SFONDO" width="{W}" height="{H}" fill="#ffffff"/>')
@@ -152,11 +156,12 @@ def componi(guide=True, sfondo=True):
                 for c in range(cols + 1)]
         out.append('</g>')
 
-    # fori per i distanziali: strato a parte, serve anche allo stampatore (foratura)
-    out.append('<g id="FORI_distanziali" fill="none" stroke="#ec008c" stroke-width="0.1">')
-    for cx, cy in [(18, 18), (W-18, 18), (18, H-18), (W-18, H-18)]:
-        out.append(f'<circle cx="{cx}" cy="{cy}" r="6"/>')
-    out.append('</g>')
+    # fori per i distanziali: solo in bozza e anteprima, non nel file di stampa
+    if fori:
+        out.append('<g id="FORI_distanziali" fill="none" stroke="#bbbbbb" stroke-width="0.4">')
+        for cx, cy in [(18, 18), (W-18, 18), (18, H-18), (W-18, H-18)]:
+            out.append(f'<circle cx="{cx}" cy="{cy}" r="6"/>')
+        out.append('</g>')
 
     # 1. Logo ShopNow a colori, ~30 cm, meta' superiore
     lw = 300
@@ -165,7 +170,7 @@ def componi(guide=True, sfondo=True):
     out.append(g)
 
     # 2. Payoff
-    p, _ = testo([("Leader nella vendita online di prodotti su misura", 300)], 11.2, W / 2, ly + lh + 34,
+    p, _ = testo([("Specialisti nella vendita online di prodotti su misura", 300)], 11.2, W / 2, ly + lh + 34,
                  spaziatura=0.015, id="PAYOFF")
     out.append(p)
 
@@ -222,6 +227,6 @@ if __name__ == "__main__":
     os.chdir(QUI)
     bozza = componi(guide=True, sfondo=True)
     open("bozza_pannello_40x55.svg", "w", encoding="utf-8").write(bozza)
-    open("pannello_40x55_stampa.svg", "w", encoding="utf-8").write(componi(guide=False, sfondo=False))
+    open("pannello_40x55_stampa.svg", "w", encoding="utf-8").write(componi(guide=False, sfondo=False, fori=False))
     anteprima(componi(guide=False, sfondo=True), "anteprima.png")
     print("ok: bozza_pannello_40x55.svg, pannello_40x55_stampa.svg, anteprima.png")
