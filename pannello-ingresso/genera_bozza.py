@@ -37,7 +37,6 @@ siti = ["letapparelle", "docciabox", "bricobros", "finestro",
 cols, rows = 4, 5
 GY0, GY1 = 222, 452           # fascia verticale della griglia
 CW = (W - 2 * M) / cols       # passo colonne
-RH = (GY1 - GY0) / rows       # passo righe
 
 # Dimensionamento ottico: stessa area apparente (20 mm x 70 mm per un logo 3.5:1),
 # con tetti in altezza e larghezza per restare nella casella.
@@ -133,63 +132,77 @@ def logo_mono(nome):
     return d, w, h
 
 
-def dimensione(w, h, nome):
+def dimensione(w, h, nome, area=AREA, h_max=H_MAX):
     r = w / h
-    hh = min(H_MAX, (AREA / r) ** 0.5, W_MAX / r) * OTTICA.get(nome, 1.0)
+    hh = min(h_max, (area / r) ** 0.5, W_MAX / r) * OTTICA.get(nome, 1.0)
     hh = min(hh, W_OTTICA / r)
     return hh * r, hh
 
 
 # ---------------------------------------------------------------- composizione
-def componi(guide=True, sfondo=True, fori=True):
+# Pezzi riusati anche da genera_pannello_unico.py
+def apri(guide=True, sfondo=True, fori=True, linee_guida=()):
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">']
     if sfondo:
         out.append(f'<rect id="SFONDO" width="{W}" height="{H}" fill="#ffffff"/>')
     if guide:
         out += ['<g id="GUIDE_non_stampare" fill="none" stroke="#e05a5a" stroke-width="0.4" stroke-dasharray="3 2">',
-                f'<rect x="{M}" y="{M}" width="{W-2*M}" height="{H-2*M}"/>']
-        out += [f'<line x1="{M}" y1="{GY0 + RH * r:.1f}" x2="{W-M}" y2="{GY0 + RH * r:.1f}" stroke-width="0.2"/>'
-                for r in range(rows + 1)]
-        out += [f'<line x1="{M + CW * c:.1f}" y1="{GY0}" x2="{M + CW * c:.1f}" y2="{GY1}" stroke-width="0.2"/>'
-                for c in range(cols + 1)]
-        out.append('</g>')
-
+                f'<rect x="{M}" y="{M}" width="{W-2*M}" height="{H-2*M}"/>', *linee_guida, '</g>']
     # fori per i distanziali: solo in bozza e anteprima, non nel file di stampa
     if fori:
         out.append('<g id="FORI_distanziali" fill="none" stroke="#bbbbbb" stroke-width="0.4">')
         for cx, cy in [(18, 18), (W-18, 18), (18, H-18), (W-18, H-18)]:
             out.append(f'<circle cx="{cx}" cy="{cy}" r="6"/>')
         out.append('</g>')
+    return out
 
-    # 1. Logo ShopNow a colori, ~30 cm, meta' superiore
-    lw = 300
-    ly = 60
-    g, lh = logo_shopnow((W - lw) / 2, ly, lw)
-    out.append(g)
 
-    # 2. Payoff
-    p, _ = testo([("Specialisti nella vendita online di prodotti su misura", 300)], 11.2, W / 2, ly + lh + 34,
-                 spaziatura=0.015, id="PAYOFF")
-    out.append(p)
-
-    # separatore
-    ys = ly + lh + 52
-    out.append(f'<line x1="{W/2-18}" y1="{ys:.1f}" x2="{W/2+18}" y2="{ys:.1f}" stroke="{INK}" stroke-width="0.5"/>')
-
-    # 3. Canali di vendita (monocromatici, stessa altezza ottica)
-    out.append('<g id="CANALI">')
+def griglia(gy0, gy1, **dim):
+    """Canali di vendita (monocromatici, stessa altezza ottica) nella fascia gy0-gy1.
+    Ritorna il gruppo SVG e le linee guida delle caselle."""
+    rh = (gy1 - gy0) / rows
+    out = ['<g id="CANALI">']
     for i, nome in enumerate(siti):
         r, c = divmod(i, cols)
         n_riga = min(cols, len(siti) - r * cols)          # riga incompleta: centrata
         cx = W / 2 + (c - (n_riga - 1) / 2) * CW
-        cy = GY0 + RH * r + RH / 2
+        cy = gy0 + rh * r + rh / 2
         d, w, h = logo_mono(nome)
-        lw_, lh_ = dimensione(w, h, nome)
+        lw_, lh_ = dimensione(w, h, nome, **dim)
         s = lh_ / h
         out.append(f'<path id="{nome}" transform="translate({cx - lw_/2:.2f} {cy - lh_/2:.2f}) scale({s:.5f})" '
                    f'fill="{INK}" fill-rule="evenodd" d="{d}"/>')
     out.append('</g>')
+    guide = [f'<line x1="{M}" y1="{gy0 + rh * r:.1f}" x2="{W-M}" y2="{gy0 + rh * r:.1f}" stroke-width="0.2"/>'
+             for r in range(rows + 1)]
+    guide += [f'<line x1="{M + CW * c:.1f}" y1="{gy0}" x2="{M + CW * c:.1f}" y2="{gy1}" stroke-width="0.2"/>'
+              for c in range(cols + 1)]
+    return "\n".join(out), guide
 
+
+def payoff(base, corpo=11.2):
+    return testo([("Specialisti nella vendita online di prodotti su misura", 300)], corpo, W / 2, base,
+                 spaziatura=0.015, id="PAYOFF")[0]
+
+
+def separatore(y, mezza=18, id_=""):
+    a = f' id="{id_}"' if id_ else ""
+    return f'<line{a} x1="{W/2-mezza}" y1="{y:.1f}" x2="{W/2+mezza}" y2="{y:.1f}" stroke="{INK}" stroke-width="0.5"/>'
+
+
+def componi(guide=True, sfondo=True, fori=True):
+    canali, linee = griglia(GY0, GY1)
+    out = apri(guide, sfondo, fori, linee)
+
+    # 1. Logo ShopNow a colori, ~30 cm, meta' superiore
+    lw, ly = 300, 60
+    g, lh = logo_shopnow((W - lw) / 2, ly, lw)
+    out.append(g)
+    # 2. Payoff
+    out.append(payoff(ly + lh + 34))
+    out.append(separatore(ly + lh + 52))
+    # 3. Canali di vendita
+    out.append(canali)
     # 4. Dominio
     t, _ = testo([("www.", 300), ("shopnow", 600), (".it", 300)], 14, W / 2, 493, spaziatura=0.06, id="DOMINIO")
     out.append(t)
