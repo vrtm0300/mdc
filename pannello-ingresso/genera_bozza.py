@@ -36,7 +36,6 @@ siti = ["letapparelle", "docciabox", "bricobros", "finestro",
 
 cols, rows = 4, 5
 GY0, GY1 = 222, 452           # fascia verticale della griglia
-CW = (W - 2 * M) / cols       # passo colonne
 
 # Dimensionamento ottico: stessa area apparente (20 mm x 70 mm per un logo 3.5:1),
 # con tetti in altezza e larghezza per restare nella casella.
@@ -141,31 +140,32 @@ def dimensione(w, h, nome, area=AREA, h_max=H_MAX):
 
 # ---------------------------------------------------------------- composizione
 # Pezzi riusati anche da genera_pannello_unico.py
-def apri(guide=True, sfondo=True, fori=True, linee_guida=()):
-    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">']
+def apri(guide=True, sfondo=True, fori=True, linee_guida=(), h=H, m=M):
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{h}mm" viewBox="0 0 {W} {h}">']
     if sfondo:
-        out.append(f'<rect id="SFONDO" width="{W}" height="{H}" fill="#ffffff"/>')
+        out.append(f'<rect id="SFONDO" width="{W}" height="{h}" fill="#ffffff"/>')
     if guide:
         out += ['<g id="GUIDE_non_stampare" fill="none" stroke="#e05a5a" stroke-width="0.4" stroke-dasharray="3 2">',
-                f'<rect x="{M}" y="{M}" width="{W-2*M}" height="{H-2*M}"/>', *linee_guida, '</g>']
+                f'<rect x="{m}" y="{m}" width="{W-2*m}" height="{h-2*m}"/>', *linee_guida, '</g>']
     # fori per i distanziali: solo in bozza e anteprima, non nel file di stampa
     if fori:
         out.append('<g id="FORI_distanziali" fill="none" stroke="#bbbbbb" stroke-width="0.4">')
-        for cx, cy in [(18, 18), (W-18, 18), (18, H-18), (W-18, H-18)]:
+        for cx, cy in [(18, 18), (W-18, 18), (18, h-18), (W-18, h-18)]:
             out.append(f'<circle cx="{cx}" cy="{cy}" r="6"/>')
         out.append('</g>')
     return out
 
 
-def griglia(gy0, gy1, **dim):
+def griglia(gy0, gy1, m=M, **dim):
     """Canali di vendita (monocromatici, stessa altezza ottica) nella fascia gy0-gy1.
     Ritorna il gruppo SVG e le linee guida delle caselle."""
     rh = (gy1 - gy0) / rows
+    cw = (W - 2 * m) / cols
     out = ['<g id="CANALI">']
     for i, nome in enumerate(siti):
         r, c = divmod(i, cols)
         n_riga = min(cols, len(siti) - r * cols)          # riga incompleta: centrata
-        cx = W / 2 + (c - (n_riga - 1) / 2) * CW
+        cx = W / 2 + (c - (n_riga - 1) / 2) * cw
         cy = gy0 + rh * r + rh / 2
         d, w, h = logo_mono(nome)
         lw_, lh_ = dimensione(w, h, nome, **dim)
@@ -173,9 +173,9 @@ def griglia(gy0, gy1, **dim):
         out.append(f'<path id="{nome}" transform="translate({cx - lw_/2:.2f} {cy - lh_/2:.2f}) scale({s:.5f})" '
                    f'fill="{INK}" fill-rule="evenodd" d="{d}"/>')
     out.append('</g>')
-    guide = [f'<line x1="{M}" y1="{gy0 + rh * r:.1f}" x2="{W-M}" y2="{gy0 + rh * r:.1f}" stroke-width="0.2"/>'
+    guide = [f'<line x1="{m}" y1="{gy0 + rh * r:.1f}" x2="{W-m}" y2="{gy0 + rh * r:.1f}" stroke-width="0.2"/>'
              for r in range(rows + 1)]
-    guide += [f'<line x1="{M + CW * c:.1f}" y1="{gy0}" x2="{M + CW * c:.1f}" y2="{gy1}" stroke-width="0.2"/>'
+    guide += [f'<line x1="{m + cw * c:.1f}" y1="{gy0}" x2="{m + cw * c:.1f}" y2="{gy1}" stroke-width="0.2"/>'
               for c in range(cols + 1)]
     return "\n".join(out), guide
 
@@ -219,13 +219,13 @@ def chrome():
             return p
 
 
-def anteprima(svg, png, px_mm=3):
+def anteprima(svg, png, px_mm=3, h_mm=H):
     exe = chrome()
     if not exe:
         print("Chrome/Edge non trovato: anteprima PNG non generata")
         return
-    w, h = W * px_mm, H * px_mm
-    svg = svg.replace(f'width="{W}mm" height="{H}mm"', f'width="{w}" height="{h}"', 1)
+    w, h = W * px_mm, round(h_mm * px_mm)
+    svg = svg.replace(f'width="{W}mm" height="{h_mm}mm"', f'width="{w}" height="{h}"', 1)
     with tempfile.TemporaryDirectory() as tmp:
         html = os.path.join(tmp, "p.html")
         open(html, "w", encoding="utf-8").write(f'<html><body style="margin:0">{svg}</body></html>')
