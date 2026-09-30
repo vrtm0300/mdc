@@ -1,6 +1,6 @@
 # Due pannelli ricavati dallo spazio 400 x 550 mm, da montare uno sopra l'altro:
 #   ShopNow        400 x 350 mm  logo, payoff, griglia dei 20 canali
-#   Monaci Digitali 400 x 200 mm  solo logo (con il monaco), fondo bianco
+#   Monaci Digitali 400 x 200 mm  fondo bianco, tre varianti (vedi sotto)
 # Stesso margine (25 mm) su entrambi: i bordi dei contenuti restano allineati.
 # Niente fori, neanche in bozza. 1 unita' SVG = 1 mm.
 #
@@ -10,8 +10,8 @@ import os
 import subprocess
 import tempfile
 
-from genera_bozza import W, QUI, apri, griglia, payoff, logo_shopnow, anteprima, chrome
-from genera_pannello_unico import logo_monaci
+from genera_bozza import W, QUI, apri, griglia, payoff, logo_shopnow, anteprima, chrome, misura, testo
+from genera_pannello_unico import logo_monaci, testo_sx, SERVIZI
 
 M2 = 25                     # margine di entrambi i pannelli
 H_SHOP, H_MONACI = 350, 200
@@ -20,8 +20,12 @@ H_SHOP, H_MONACI = 350, 200
 LOGO_Y, LOGO_W = 33, 190
 GRIGLIA = (122, 317)        # 5 file da 39 mm
 
-# Monaci: logo centrato
+# Monaci: tre varianti
+#   "logo"     logo completo con il monaco, centrato
+#   "servizi"  logo con il monaco a sinistra, servizi con descrizione a destra
+#   "scritta"  solo MONACI DIGITALI al centro, in basso i tre servizi su una riga
 MONACI_ALT = 136            # altezza del logo con il monaco (margini sopra/sotto 32 mm)
+SCRITTA_ALT = 92            # altezza della sola scritta (variante "scritta")
 
 
 def shopnow(guide=True, sfondo=True):
@@ -32,12 +36,38 @@ def shopnow(guide=True, sfondo=True):
     return "\n".join(out)
 
 
-def monaci(guide=True, sfondo=True):
+def monaci(guide=True, sfondo=True, variante="logo"):
     out = apri(guide, sfondo, fori=False, h=H_MONACI, m=M2)
-    # larghezza del logo a quell'altezza, per centrarlo
-    _, lw = logo_monaci(0, 0, MONACI_ALT, monaco=True)
-    g, _ = logo_monaci((W - lw) / 2, (H_MONACI - MONACI_ALT) / 2, MONACI_ALT, monaco=True)
-    out += [g, '</svg>']
+    if variante == "logo":
+        _, lw = logo_monaci(0, 0, MONACI_ALT)          # larghezza a quell'altezza, per centrarlo
+        out.append(logo_monaci((W - lw) / 2, (H_MONACI - MONACI_ALT) / 2, MONACI_ALT)[0])
+
+    elif variante == "servizi":
+        titolo, descr, passo, stacco = 9.2, 7.2, 37, 28
+        _, lw = logo_monaci(0, 0, MONACI_ALT)
+        larg_testi = max(max(misura([(t, 600)], titolo, 0.1)[1], misura([(d, 300)], descr, 0.01)[1])
+                         for t, d in SERVIZI)
+        x0 = (W - (lw + stacco + larg_testi)) / 2     # logo + testi centrati come un blocco unico
+        out.append(logo_monaci(x0, (H_MONACI - MONACI_ALT) / 2, MONACI_ALT)[0])
+        tx = x0 + lw + stacco
+        blocco = passo * (len(SERVIZI) - 1) + titolo * 0.7 + 4 + descr
+        base = (H_MONACI - blocco) / 2 + titolo * 0.7
+        out.append('<g id="SERVIZI_MONACI">')
+        for i, (t, d) in enumerate(SERVIZI):
+            yb = base + passo * i
+            out.append(testo_sx([(t, 600)], titolo, tx, yb, spaziatura=0.1))
+            out.append(testo_sx([(d, 300)], descr, tx, yb + 4 + descr * 0.95, spaziatura=0.01))
+        out.append('</g>')
+
+    elif variante == "scritta":
+        corpo, stacco = 7.5, 30
+        riga = "  ·  ".join(t for t, _ in SERVIZI)
+        blocco = SCRITTA_ALT + stacco + corpo * 0.7
+        y0 = (H_MONACI - blocco) / 2
+        _, sw = logo_monaci(0, 0, SCRITTA_ALT, monaco=False)
+        out.append(logo_monaci((W - sw) / 2, y0, SCRITTA_ALT, monaco=False)[0])
+        out.append(testo([(riga, 500)], corpo, W / 2, y0 + blocco, spaziatura=0.15, id="SERVIZI_MONACI")[0])
+    out.append('</svg>')
     return "\n".join(out)
 
 
@@ -64,10 +94,16 @@ def anteprima_insieme(svgs, png, px_mm=3, stacco=15):
 
 if __name__ == "__main__":
     os.chdir(QUI)
-    for nome, fn, h in [("shopnow_40x35", shopnow, H_SHOP), ("monaci_40x20", monaci, H_MONACI)]:
+    pannelli = [("shopnow_40x35", shopnow, H_SHOP),
+                ("monaci_40x20", monaci, H_MONACI),
+                ("monaci_40x20_servizi", lambda **k: monaci(variante="servizi", **k), H_MONACI),
+                ("monaci_40x20_scritta", lambda **k: monaci(variante="scritta", **k), H_MONACI)]
+    for nome, fn, h in pannelli:
         open(f"pannello_{nome}_bozza.svg", "w", encoding="utf-8").write(fn(guide=True))
         open(f"pannello_{nome}_stampa.svg", "w", encoding="utf-8").write(fn(guide=False, sfondo=False))
         anteprima(fn(guide=False), f"anteprima_{nome}.png", h_mm=h)
     anteprima_insieme([(shopnow(guide=False), H_SHOP), (monaci(guide=False), H_MONACI)],
                       "anteprima_due_pannelli.png")
-    print("ok: pannello_shopnow_40x35_*, pannello_monaci_40x20_*, anteprime")
+    anteprima_insieme([(monaci(guide=False, variante=v), H_MONACI) for v in ("logo", "servizi", "scritta")],
+                      "anteprima_monaci_varianti.png")
+    print("ok: pannello_shopnow_40x35_*, pannello_monaci_40x20[_servizi|_scritta]_*, anteprime")
